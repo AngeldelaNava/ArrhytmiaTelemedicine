@@ -5,30 +5,33 @@
 package Pojos;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  *
  * @author maria
  */
 public class Patient {
+
     private String name;
     private String lastName;
-    private Date dob;
+    private LocalDate dob;
     private String email;
     private String gender;
     private Integer id;
     private String username;
     private String password;
-    
+
     public Patient() {
     }
 
-    public Patient(String name, String lastName, Date dob, String email, String gender, Integer id, String username, String password) {
+    public Patient(String name, String lastName, LocalDate dob, String email, String gender, Integer id, String username, String password) {
         this.name = name;
         this.lastName = lastName;
         this.dob = dob;
         this.email = email;
+        this.username = username;
+        this.password = password;
         this.gender = gender;
         this.id = id;
     }
@@ -49,11 +52,11 @@ public class Patient {
         this.lastName = lastName;
     }
 
-    public Date getDob() {
+    public LocalDate getDob() {
         return dob;
     }
 
-    public void setDob(Date dob) {
+    public void setDob(LocalDate dob) {
         this.dob = dob;
     }
 
@@ -62,9 +65,8 @@ public class Patient {
     }
 
     public void setEmail(String email) {
-            this.email = email;
+        this.email = email;
     }
-    
 
     public String getGender() {
         return gender;
@@ -81,9 +83,25 @@ public class Patient {
     public void setId(Integer id) {
         this.id = id;
     }
-    
-    public String formatDate (Date dob){
-        SimpleDateFormat  formato = new SimpleDateFormat("dd/MM/yyyy");
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public static String formatDate(LocalDate dob) {
+        SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
         return formato.format(dob);
     }
 
