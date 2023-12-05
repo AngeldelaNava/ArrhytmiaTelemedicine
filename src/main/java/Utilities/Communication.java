@@ -24,20 +24,13 @@ public class Communication {
         Socket socket = null; 
         do {
             socket = new Socket();
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-            System.out.println("Introduce your IP: ");
-            String ip = br.readLine();
             try {
-                System.out.println(connected);
-                socket = new Socket(ip, 9000);
-
+                socket = new Socket("localhost", 9000);
                 InputStream inputStream = socket.getInputStream();
                 OutputStream outputStream = socket.getOutputStream();
                 PrintWriter printWriter = new PrintWriter(outputStream, true);
-                BufferedReader bf = new BufferedReader(new InputStreamReader(inputStream));
-                
+                BufferedReader bf = new BufferedReader(new InputStreamReader(inputStream));                
                 connected = socket.isConnected();  
-                System.out.println(connected);
             } catch (IOException ex) {
                 if (connected == false) {
                     System.out.println("Connection failed");
@@ -60,7 +53,7 @@ public class Communication {
 
     }
 
-    public static void sendSignal(PrintWriter printWriter, Signal signal) {
+    public static void sendSignal(PrintWriter printWriter, ECG signal) {
         printWriter.println(signal.toString());
     }
 
@@ -88,7 +81,7 @@ public class Communication {
                             p.setName(data2[j + 1]);
                             break;
                         case "surname":
-                            p.setSurname(data2[j + 1]);
+                            p.setLastName(data2[j + 1]);
                             break;
                         case "dob":
                             try {
@@ -155,7 +148,7 @@ public class Communication {
         return d;
     }
 
-    public static Signal receiveSignal(BufferedReader br) {
+    public static ECG receiveSignal(BufferedReader br) {
         ECG s = new ECG();
         try {
             String line = br.readLine();

@@ -6,6 +6,7 @@ package Pojos;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.Date;
 
 /**
  *
@@ -15,7 +16,7 @@ public class Patient {
 
     private String name;
     private String lastName;
-    private LocalDate dob;
+    private Date dob;
     private String email;
     private String gender;
     private Integer id;
@@ -25,7 +26,7 @@ public class Patient {
     public Patient() {
     }
 
-    public Patient(String name, String lastName, LocalDate dob, String email, String gender, Integer id, String username, String password) {
+    public Patient(String name, String lastName, Date dob, String email, String gender, Integer id, String username, String password) {
         this.name = name;
         this.lastName = lastName;
         this.dob = dob;
@@ -44,19 +45,19 @@ public class Patient {
         this.name = name;
     }
 
-    public String getSurname() {
+    public String getLastName() {
         return lastName;
     }
 
-    public void setSurname(String lastName) {
+    public void setLastName(String lastName) {
         this.lastName = lastName;
     }
 
-    public LocalDate getDob() {
+    public Date getDob() {
         return dob;
     }
 
-    public void setDob(LocalDate dob) {
+    public void setDob(Date dob) {
         this.dob = dob;
     }
 
@@ -107,6 +108,6 @@ public class Patient {
 
     @Override
     public String toString() {
-        return "Patient{" + ", name=" + name + ", lastName=" + lastName + ", dob=" + formatDate(dob) + ", email=" + email + ", gender=" + gender + '}';
+        return "Patient{" + ", name=" + name + ", lastName=" + lastName + ", dob=" + dob + ", email=" + email + ", gender=" + gender + '}';
     }
 }

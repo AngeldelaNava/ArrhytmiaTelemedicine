@@ -34,17 +34,14 @@ public class Menu {
   
     public static void main(String[] args) throws Exception {
         try {
-            Socket socket = Utilities.Communication.connectToServer();
+            Socket socket = Utilities.Communication.connectToServer(); //te devuelve un socket en el port 9000 y te verifica si se ha podido coonectar
             InputStream inputStream = socket.getInputStream();
             OutputStream outputStream = socket.getOutputStream();
             PrintWriter printWriter = new PrintWriter (outputStream,true);
             BufferedReader bf = new BufferedReader (new InputStreamReader (inputStream));
-            Scanner sc = new Scanner (System.in);
-            
-            String nextLine;
-            int choice=1;
-	
-            do {
+            Scanner sc = new Scanner (System.in);          
+            int choice;	
+            while(true) {
                 try {
                     System.out.println("Welcome.");
                     System.out.println("1. Register");
@@ -52,44 +49,37 @@ public class Menu {
                     System.out.println("0. Exit");
                     choice = sc.nextInt();
                     System.out.println(choice);
-                    printWriter.println(choice);
+                    printWriter.println(choice); //se lo pasas al server
                     switch(choice) {
                         case 0:
                             Utilities.Communication.exitFromServer(printWriter, bf, inputStream, outputStream, socket);
-                            System.exit(0);
+                            System.exit(0); //sales de la aplicacion
                         case 1:
-                            System.out.println("inside switch 1");
-                            register(bf, printWriter);
+                            register(bf, printWriter);//pasas bf para escribir y printWriter para la conexión con servidor
                             break;
                         case 2:
-                            System.out.println("inside switch 2");
                             login(socket, inputStream, outputStream, bf, printWriter);
                             break;
                         default:
-                            System.out.println("Please introduce a valid option.");
+                            System.out.println("Please introduce a valid option."); //si introduce otro numero que no sea [0,2]
                     }
                 } catch (Exception e) {
-                        nextLine = sc.next();
                         System.out.println("Please introduce a valid option.");
                 }
-            }while(true);
+            }
         } catch (IOException ex) {
             Logger.getLogger(Menu.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
        
-    private static void register(BufferedReader br, PrintWriter pw) throws Exception {
-        Scanner sc = new Scanner(System.in);
-        System.out.println("Introduce your personal data: ");
-        Patient p = createPatient(br, pw);
-        System.out.println("Here is a list of all the doctors:");
-        int size = Integer.parseInt(br.readLine());
-        for (int i=0;i<size;i++){
-            System.out.println(br.readLine());
-        }
-        System.out.println("Introduce the id of your doctor:");
-        int id = sc.nextInt();
-        pw.println(id);
+    private static void register(BufferedReader br, PrintWriter pw) {
+         try {
+             Scanner sc = new Scanner(System.in);//para eacribir en consola
+             System.out.println("Introduce your personal data: ");
+             Patient p = createPatient(br, pw);
+         } catch (Exception ex) {
+             Logger.getLogger(Menu.class.getName()).log(Level.SEVERE, null, ex);
+         }
     }
 
                   
@@ -103,7 +93,7 @@ public class Menu {
         String password = sc.next();
         user.setPassword(password);
         user.setUsername(username);
-        Utilities.Communication.sendUser(pw, user);
+        Utilities.Communication.sendUser(pw, user);//se lo pasas al server
         String line = bf.readLine();
         if(line.equals("Wrong username or password")) {
             System.out.println("Wrong username or password");
@@ -122,37 +112,20 @@ public class Menu {
         String nextLine;
         int option=0;
         Patient patient = Utilities.Communication.receivePatient(br);
-        System.out.println("Hello "+patient.getSurname());
         do{
-            int a = 0;
-            
-            
             System.out.println("Choose an option [0-3]:"
-                            + "\n1. Start recording \n2. Stop recording \n3. Consult my recordings \n4. Change BITalino MAC address \n0.Exit");
-            do {
-                try {
-                    option = sc.nextInt();
-                    pw.println(option);
-                    a = 1;
-                } catch (Exception e) {
-                    nextLine = sc.next();
-                    System.out.println("Please select a valid option.");
-                }
-            } while (a==0);
-
+                            + "\n1. Start recording \n2. Consult my recordings \n0.Exit");
+            option = sc.nextInt();
+            pw.println(option);
             switch (option) {
                 case 0:
-                    System.out.println("Thank you for using our system");
                     Utilities.Communication.exitFromServer(pw, br, inputStream, outputStream, socket);
                     System.exit(0);
                 case 1:
-                    System.out.println("Your going to record your ECG and EMG signals");
+                    System.out.println("You are going to record your ECG signal");
                     Utilities.Communication.recordSignal(patient, pw);
                     break;
-                case 2: //esta igual sobra
-                    System.out.println("You can stop recording your signal");
-                    break;
-                case 3:
+                case 2:
                     System.out.println("Here you can consult all your signals");
                     showSignals(br, pw);	
                     break;
@@ -229,18 +202,17 @@ public class Menu {
     }    
 
     
-    public static Patient createPatient (BufferedReader br, PrintWriter pw) throws NotBoundException, Exception {
+    public static Patient createPatient (BufferedReader br, PrintWriter pw) {
         Scanner sc = new Scanner (System.in);
         Patient p = new Patient();
-         System.out.println("Please, input the patient info:");
        
         System.out.print("Name: "); 
         String name = sc.next();
         p.setName(name);
         
-        System.out.print("Surname: "); 
-        String surname = sc.next();
-        p.setSurname(surname);
+        System.out.print("LastName: "); 
+        String lastName = sc.next();
+        p.setLastName(lastName);
         
         System.out.print("Gender: ");
         String gender = sc.next();  
@@ -259,56 +231,30 @@ public class Menu {
         System.out.print("Date of birth [yyyy-mm-dd]: ");	
         String birthdate = sc.next();
         Date bdate; 
-        try {
-            bdate = Date.valueOf(birthdate);
-            if (bdate.before(Date.valueOf(LocalDate.now())) || bdate.equals(Date.valueOf(LocalDate.now()))) {
-                p.setDob(bdate);
-            } else {
-                do {
-                    System.out.print("Please introduce a valid date [yyyy-mm-dd]: ");
-                    birthdate = sc.next();
-                    bdate = Date.valueOf(birthdate);
-                } while ((!bdate.before(Date.valueOf(LocalDate.now()))) || (!bdate.equals(Date.valueOf(LocalDate.now()))));
-                p.setDob(bdate);
-            }
-        } catch (Exception e) {
-            int b=0;
-            do {	
-                System.out.print("Please introduce a valid date format [yyyy-mm-dd]: ");
-                birthdate = sc.next();
-                bdate = Date.valueOf(birthdate);
-                if (bdate.before(Date.valueOf(LocalDate.now())) || bdate.equals(Date.valueOf(LocalDate.now()))) {
-                        p.setDob(bdate);
-                } else {
-                    do {
-                        System.out.print("Please introduce a valid date [yyyy-mm-dd]: ");							
-                        birthdate = sc.next();
-                        bdate = Date.valueOf(birthdate);
-                    } while ((!bdate.before(Date.valueOf(LocalDate.now()))) || (!bdate.equals(Date.valueOf(LocalDate.now()))));
-                    p.setDob(bdate);
-                }
-                b=1;
-            } while (b==0);
-        }
+        System.out.print("Please introduce a valid date [yyyy-mm-dd]: ");
+        birthdate = sc.next();
+        bdate = Date.valueOf(birthdate);
+        p.setDob(bdate);
 
         System.out.print("Email: ");			
         String email = sc.next();
         p.setEmail(email);
 
-        System.out.println("Let's proceed with the registration, the username and password will be autogenerated by the system:");
+        System.out.println("Let's proceed with the registration:");
         Utilities.Communication.sendPatient(pw, p);
-        System.out.println("after send patient");
-        User user = Utilities.Communication.receiveUser(br);
-        System.out.println("The autogenerated username is: "+ user.getUsername());
-        System.out.println("The autogenerated password is: "+ user.getPassword());
-        String line = br.readLine();
-        if (line.equals("Patient successfully registered")){
-            System.out.println("Success");
-            return p;
-        } else{
-            System.out.println("Patient not registered");
-            return null;
-        }
+        User user = new User();
+        System.out.print("Role: \n");	
+        System.out.print("1. Doctor: \n");			
+        System.out.print("2. Patient: \n");			
+        Integer role = Integer.parseInt(sc.next());
+        user.setRole(role);
+        System.out.print("Username: ");			
+        String username = sc.next();
+        user.setUsername(username);
+        System.out.print("Password: ");			
+        String password = sc.next();
+        user.setUsername(password);
+        return p;
     }
     
 
