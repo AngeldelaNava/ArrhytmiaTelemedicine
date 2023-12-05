@@ -43,7 +43,7 @@ public class ECG {
         this.id = id;
     }
 
-    public void setECG_values(List<Integer> ecg) {
+    public void setEcg(List<Integer> ecg) {
         this.ecg = ecg;
     }
 
