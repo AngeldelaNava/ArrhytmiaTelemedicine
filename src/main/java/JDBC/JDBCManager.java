@@ -84,7 +84,7 @@ public class JDBCManager implements DBManager {
             String sql = "INSERT INTO patients (name, lastname, date, gender, email, username, password, MAC) VALUES (?,?,?,?,?,?,?)";
             PreparedStatement prep = c.prepareStatement(sql);
             prep.setString(1, p.getName());
-            prep.setString(2, p.getSurname());
+            prep.setString(2, p.getLastName());
             prep.setString(3, formatDate(p.getDob()));
             prep.setString(4, p.getGender());
             prep.setString(5, p.getEmail());
@@ -175,12 +175,53 @@ public class JDBCManager implements DBManager {
 
     @Override
     public List<Patient> listAllPatients() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        List<Patient> patients = new ArrayList<>();
+        try {
+            Statement stmt = c.createStatement();
+            String sql = "SELECT * FROM patients";
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                Integer id = rs.getInt("id");
+                String name = rs.getString("name");
+                String lastname = rs.getString("lastname");
+                String gender = rs.getString("gender");
+                String email = rs.getString("email");
+                String fecha = rs.getString("date");
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                LocalDate date = LocalDate.parse(fecha, formatter);
+                Patient p = new Patient(id, name, date, lastname, gender, email);
+                patients.add(p);
+            }
+
+            rs.close();
+            stmt.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return patients;
     }
 
     @Override
     public void changePassword(String username, String oldPassword, String newPassword) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (!verifyPassword(username, oldPassword)) {
+            System.out.println("ERROR: Username and/or current password are not correct");
+        } else {
+            try {
+                String sql = "UPDATE Patient SET password = ? WHEN username = ?";
+                PreparedStatement prep = c.prepareStatement(sql);
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                md.update(newPassword.getBytes());
+                byte[] hash = md.digest();
+                prep.setBytes(1, hash);
+                prep.setString(2, username);
+                prep.executeUpdate();
+            } catch (SQLException ex) {
+                Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (NoSuchAlgorithmException ex) {
+                Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     @Override
